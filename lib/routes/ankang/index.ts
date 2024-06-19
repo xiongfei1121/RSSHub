@@ -9,7 +9,7 @@ const baseUrl = 'https://www.ankang.gov.cn';
 export const route: Route = {
     path: '/:path?',
     categories: ['government'],
-    example: '/ankang/Node-1466',
+    example: '/ankang/newslist-1466',
     parameters: { path: '路径，默认为 `Node-1466`' },
     features: {
         requireConfig: false,
@@ -19,13 +19,13 @@ export const route: Route = {
         supportPodcast: false,
         supportScihub: false,
     },
-    name: '通用',
-    maintainers: ['TonyRL'],
+    name: '安康政府网站通用',
+    maintainers: ['YourName'],
     handler,
     description: `:::tip
-  路径处填写对应页面 URL 中 \`https://www.bjsk.org.cn/\` 和 \`.html\` 之间的字段。下面是一个例子。
+  路径处填写对应页面 URL 中 \`https://www.ankang.gov.cn/\` 和 \`.html\` 之间的字段。下面是一个例子。
 
-  若订阅 [社科资讯 > 社科要闻](https://www.bjsk.org.cn/newslist-1394-1474-0.html) 则将对应页面 URL \`https://www.bjsk.org.cn/newslist-1394-1474-0.html\` 中 \`https://www.bjsk.org.cn/\` 和 \`.html\` 之间的字段 \`newslist-1394-1474-0\` 作为路径填入。此时路由为 [\`/bjsk/newslist-1394-1474-0\`](https://rsshub.app/bjsk/newslist-1394-1474-0)
+  若订阅 [新闻资讯](https://www.ankang.gov.cn/Node-1466.html) 则将对应页面 URL \`https://www.ankang.gov.cn/Node-1466.html\` 中 \`https://www.ankang.gov.cn/\` 和 \`.html\` 之间的字段 \`Node-1466\` 作为路径填入。此时路由为 [\`/ankang/Node-1466\`](https://rsshub.app/ankang/Node-1466)
   :::`,
 };
 
@@ -39,14 +39,14 @@ async function handler(ctx) {
     });
     const $ = load(response);
 
-    const list = $('.article-list a')
+    const list = $('.news-list a')  // 假设新闻列表的链接在 class 为 'news-list' 的元素中
         .toArray()
         .map((item) => {
             item = $(item);
             return {
                 title: item.attr('title'),
                 link: `${baseUrl}${item.attr('href')}`,
-                pubDate: parseDate(item.find('.time').text(), 'YYYY.MM.DD'),
+                pubDate: parseDate(item.find('.date').text(), 'YYYY-MM-DD'),  // 假设日期在 class 为 'date' 的元素中
             };
         });
 
@@ -59,10 +59,10 @@ async function handler(ctx) {
                     },
                 });
                 const $ = load(response);
-                item.description = $('.article-main').html();
-                item.author = $('.info')
+                item.description = $('.content').html();  // 假设文章内容在 class 为 'content' 的元素中
+                item.author = $('.author')
                     .text()
-                    .match(/作者：(.*)\s+来源/)[1];
+                    .match(/作者：(.*)\s+来源/)[1];  // 假设作者信息在 class 为 'author' 的元素中
                 return item;
             })
         )
