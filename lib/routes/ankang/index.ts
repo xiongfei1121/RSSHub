@@ -39,7 +39,7 @@ async function handler(ctx) {
     });
     const $ = load(response);
 
-    const list = $('.news-list a')  // 假设新闻列表的链接在 class 为 'news-list' 的元素中
+    const list = $('.newslist a')  // 假设新闻列表的链接在 class 为 'newslist' 的元素中
         .toArray()
         .map((item) => {
             item = $(item);
