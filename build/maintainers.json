@@ -10049,6 +10049,9 @@
   "/199it/:category{.+}?": [
     "nczitzk"
   ],
+  "/ankang/keti/:id?": [
+    "nczitzk"
+  ],
   "/cline/blog": [
     "yeshan333"
   ],

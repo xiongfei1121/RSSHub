@@ -7689,6 +7689,15 @@
           "/"
         ],
         "target": "/bjsk/keti/:id"
+      },
+      {
+        "title": "基金项目管理平台",
+        "docs": "https://docs.rsshub.app/routes/government",
+        "source": [
+          "/indexAction!to_index.action",
+          "/"
+        ],
+        "target": "/ankang/keti/:id"
       }
     ]
   },
