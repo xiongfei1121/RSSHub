@@ -1,10 +1,10 @@
-import { rss3, json, RSS, Atom } from '@/utils/render';
-import { config } from '@/config';
-import { collapseWhitespace, convertDateToISO8601 } from '@/utils/common-utils';
 import type { MiddlewareHandler } from 'hono';
-import { Data } from '@/types';
 
+import { config } from '@/config';
+import type { Data } from '@/types';
 import cacheModule from '@/utils/cache/index';
+import { collapseWhitespace, convertDateToISO8601 } from '@/utils/common-utils';
+import { Atom, json, RSS, rss3 } from '@/utils/render';
 
 const middleware: MiddlewareHandler = async (ctx, next) => {
     // Set RSS <ttl> (minute) according to the availability of cache
@@ -13,6 +13,11 @@ const middleware: MiddlewareHandler = async (ctx, next) => {
     // The minimum <ttl> is limited to 1 minute to prevent potential misuse
     const ttl = (cacheModule.status.available && Math.trunc(config.cache.routeExpire / 60)) || 1;
     await next();
+
+    const apiData = ctx.get('apiData');
+    if (apiData) {
+        return ctx.json(apiData);
+    }
 
     const data: Data = ctx.get('data');
     const outputType = ctx.req.query('format') || 'rss';
@@ -74,8 +79,16 @@ const middleware: MiddlewareHandler = async (ctx, next) => {
                 }
 
                 if (outputType !== 'rss') {
-                    item.pubDate && (item.pubDate = convertDateToISO8601(item.pubDate) || '');
-                    item.updated && (item.updated = convertDateToISO8601(item.updated) || '');
+                    try {
+                        item.pubDate && (item.pubDate = convertDateToISO8601(item.pubDate) || '');
+                    } catch {
+                        item.pubDate = '';
+                    }
+                    try {
+                        item.updated && (item.updated = convertDateToISO8601(item.updated) || '');
+                    } catch {
+                        item.updated = '';
+                    }
                 }
             }
         }
@@ -94,18 +107,24 @@ const middleware: MiddlewareHandler = async (ctx, next) => {
         return ctx.json(result);
     }
 
-    // retain .ums for backward compatibility
-    if (outputType === 'ums' || outputType === 'rss3') {
-        return ctx.json(rss3(result));
-    } else if (outputType === 'json') {
-        ctx.header('Content-Type', 'application/feed+json; charset=UTF-8');
-        return ctx.body(json(result));
+    if (ctx.get('redirect')) {
+        return ctx.redirect(ctx.get('redirect'), 301);
     } else if (ctx.get('no-content')) {
         return ctx.body(null);
-    } else if (outputType === 'atom') {
-        return ctx.render(<Atom data={result} />);
     } else {
-        return ctx.render(<RSS data={result} />);
+        // retain .ums for backward compatibility
+        switch (outputType) {
+            case 'ums':
+            case 'rss3':
+                return ctx.json(rss3(result));
+            case 'json':
+                ctx.header('Content-Type', 'application/feed+json; charset=UTF-8');
+                return ctx.body(json(result));
+            case 'atom':
+                return ctx.render(<Atom data={result} />);
+            default:
+                return ctx.render(<RSS data={result} />);
+        }
     }
 };
 

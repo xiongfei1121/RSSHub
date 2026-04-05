@@ -1,5 +1,6 @@
-import { Route } from '@/types';
 import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 
@@ -26,12 +27,12 @@ export const route: Route = {
     handler,
     url: 'github.com/topics',
     description: `| Parameter | Description      | Values                                                                                                                          |
-  | --------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-  | \`l\`       | Language         | For instance \`php\`, which can be found in the URL of the corresponding [Topics page](https://github.com/topics/framework?l=php) |
-  | \`o\`       | Sorting Order    | \`asc\`, \`desc\`                                                                                                                   |
-  | \`s\`       | Sorting Criteria | \`stars\`, \`forks\`, \`updated\`                                                                                                     |
+| --------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| \`l\`       | Language         | For instance \`php\`, which can be found in the URL of the corresponding [Topics page](https://github.com/topics/framework?l=php) |
+| \`o\`       | Sorting Order    | \`asc\`, \`desc\`                                                                                                                   |
+| \`s\`       | Sorting Criteria | \`stars\`, \`forks\`, \`updated\`                                                                                                     |
 
-  For instance, the \`/github/topics/framework/l=php&o=desc&s=stars\` route will generate the RSS feed corresponding to this [page](https://github.com/topics/framework?l=php\&o=desc\&s=stars).`,
+  For instance, the \`/github/topics/framework/l=php&o=desc&s=stars\` route will generate the RSS feed corresponding to this [page](https://github.com/topics/framework?l=php&o=desc&s=stars).`,
 };
 
 async function handler(ctx) {
@@ -45,7 +46,7 @@ async function handler(ctx) {
         title: $('title').text(),
         description: $('.markdown-body').text().trim(),
         link: url,
-        item: $('article.my-4')
+        item: $('article.border')
             .toArray()
             .map((item) => {
                 item = $(item);

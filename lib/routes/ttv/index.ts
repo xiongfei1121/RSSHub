@@ -1,10 +1,10 @@
-import { Route } from '@/types';
-
-import got from '@/utils/got';
-import timezone from '@/utils/timezone';
 import { load } from 'cheerio';
-import { parseDate } from '@/utils/parse-date';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
+import got from '@/utils/got';
+import { parseDate } from '@/utils/parse-date';
+import timezone from '@/utils/timezone';
 
 export const route: Route = {
     path: '/:category?',
@@ -34,7 +34,7 @@ async function handler(ctx) {
     const $ = load(response.data);
 
     let items = $('div.news-list li')
-        .slice(0, ctx.req.query('limit') ? Number.parseInt(ctx.query.limit) : 30)
+        .slice(0, ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 30)
         .toArray()
         .map((item) => {
             item = $(item);

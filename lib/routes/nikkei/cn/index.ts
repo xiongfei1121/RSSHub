@@ -1,11 +1,23 @@
-import { Route } from '@/types';
-import { getSubPath } from '@/utils/common-utils';
-import cache from '@/utils/cache';
-import got from '@/utils/got';
 import { load } from 'cheerio';
-import timezone from '@/utils/timezone';
+import Parser from 'rss-parser';
+
+import { config } from '@/config';
+import type { DataItem, Route } from '@/types';
+import cache from '@/utils/cache';
+import { getSubPath } from '@/utils/common-utils';
+import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
-import parser from '@/utils/rss-parser';
+import timezone from '@/utils/timezone';
+
+const parser = new Parser({
+    customFields: {
+        item: ['magnet'],
+    },
+    headers: {
+        'User-Agent': config.ua,
+    },
+    defaultRSS: 0.9,
+});
 
 export const route: Route = {
     path: '/cn/*',
@@ -51,7 +63,7 @@ export const route: Route = {
 };
 
 async function handler(ctx) {
-    let language = '';
+    let language: string;
     let path = getSubPath(ctx);
 
     if (/^\/cn\/(cn|zh)/.test(path)) {
@@ -69,8 +81,8 @@ async function handler(ctx) {
 
     let officialFeed;
 
-    let items = [],
-        $;
+    let items: DataItem[];
+    let $;
 
     if (isOfficialRSS) {
         officialFeed = await parser.parseURL(currentUrl);
@@ -86,6 +98,7 @@ async function handler(ctx) {
 
         $ = load(response.data);
 
+        const seenLinks = new Set<string>();
         items = $('dt a')
             .toArray()
             .map((item) => {
@@ -96,7 +109,13 @@ async function handler(ctx) {
                     link: new URL(item.attr('href'), currentUrl).href,
                 };
             })
-            .reduce((prev, cur) => (prev.length && prev.at(-1).link === cur.link ? prev : [...prev, cur]), [])
+            .filter((item) => {
+                if (seenLinks.has(item.link)) {
+                    return false;
+                }
+                seenLinks.add(item.link);
+                return true;
+            })
             .slice(0, limit);
     }
 
@@ -118,10 +137,7 @@ async function handler(ctx) {
 
                 item.author = content('meta[name="author"]').attr('content');
                 item.title = item.title ?? content('meta[name="twitter:title"]').attr('content');
-                item.description = content('#contentDiv')
-                    .html()
-                    ?.replace(/&nbsp;/g, '')
-                    .replaceAll('<p></p>', '');
+                item.description = content('#contentDiv').html()?.replaceAll('&nbsp;', '').replaceAll('<p></p>', '');
 
                 return item;
             })

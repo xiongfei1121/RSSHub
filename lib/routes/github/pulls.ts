@@ -1,12 +1,14 @@
-import { Route } from '@/types';
-import ofetch from '@/utils/ofetch';
-import { config } from '@/config';
 import MarkdownIt from 'markdown-it';
+
+import { config } from '@/config';
+import type { Route } from '@/types';
+import ofetch from '@/utils/ofetch';
+import { parseDate } from '@/utils/parse-date';
+
 const md = MarkdownIt({
     html: true,
     linkify: true,
 });
-import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
     path: '/pull/:user/:repo/:state?/:labels?',
@@ -51,7 +53,7 @@ async function handler(ctx) {
             labels,
             sort: 'created',
             direction: 'desc',
-            per_page: ctx.req.query('limit') ? (Number.parseInt(ctx.req.query('limit')) <= 100 ? Number.parseInt(ctx.req.query('limit')) : 100) : 100,
+            per_page: ctx.req.query('limit') ? Math.min(Number.parseInt(ctx.req.query('limit')), 100) : 100,
         },
         headers,
     });

@@ -1,12 +1,13 @@
 import { load } from 'cheerio';
+
+import type { DataItem, Route } from '@/types';
 import cache from '@/utils/cache';
 import ofetch from '@/utils/ofetch';
-import type { Route, DataItem } from '@/types';
 
 export const route: Route = {
     path: '/article/:id',
     name: '章节',
-    url: 'www.69shuba.pro',
+    url: 'www.69shuba.cx',
     maintainers: ['eternasuno'],
     example: '/69shu/article/47117',
     parameters: { id: '小说 id, 可在对应小说页 URL 中找到' },
@@ -21,19 +22,20 @@ export const route: Route = {
     },
     radar: [
         {
-            source: ['www.69shuba.pro/book/:id.htm'],
+            source: ['www.69shuba.cx/book/:id.htm'],
             target: '/article/:id',
         },
     ],
     handler: async (ctx) => {
         const { id } = ctx.req.param();
-        const link = `https://www.69shuba.pro/book/${id}.htm`;
-        const $ = load(await get(link));
+        const link = `https://www.69shuba.cx/book/${id}.htm`;
+        const html = await get(link);
+        const $ = load(html);
 
         const item = await Promise.all(
             $('.qustime li>a')
-                .map((_, chapter) => createItem(chapter.attribs.href))
                 .toArray()
+                .map((chapter) => createItem(chapter.attribs.href))
         );
 
         return {
@@ -50,7 +52,8 @@ export const route: Route = {
 
 const createItem = (url: string) =>
     cache.tryGet(url, async () => {
-        const $ = load(await get(url));
+        const html = await get(url);
+        const $ = load(html);
         const { articleid, chapterid, chaptername } = parseObject(/bookinfo\s?=\s?{[\S\s]+?}/, $('head>script:not([src])').text());
         const decryptionMap = parseObject(/_\d+\s?=\s?{[\S\s]+?}/, $('.txtnav+script').text());
 
@@ -88,9 +91,9 @@ const decrypt = (txt: string, articleid: string, chapterid: string, decryptionMa
     }
 
     return txt
+        .replaceAll(/\u2003|\n/g, '')
         .split('<br><br>')
-        .map((line, index, array) => (lineMap[index] ? array[lineMap[index]] : line))
-        .slice(1, -1)
-        .join('<br><br>')
-        .replaceAll(/\u2003|(<div[\S\s]*?<\/div>)/g, '');
+        .flatMap((line, index, array) => (lineMap[index] ? array[lineMap[index]] : line).split('<br>'))
+        .slice(1, -2)
+        .join('<br><br>');
 };
