@@ -557,9 +557,6 @@
   "/ankang/keti/:id?": [
     "nczitzk"
   ],
-  "/ankang/ankang/news": [
-    "YourName"
-  ],
   "/annualreviews/:id": [
     "nczitzk"
   ],

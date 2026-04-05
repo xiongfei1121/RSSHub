@@ -184,7 +184,6 @@ export type RoutePath =
   | `/android/security-bulletin`
   | `/anime1anime/:category/:name`
   | `/anime1search/:keyword`
-  | `/ankang/ankang/news`
   | `/ankang/keti/:id?`
   | `/annualreviews/:id`
   | `/anquanke/:category/:fulltext?`
