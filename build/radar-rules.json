@@ -7689,15 +7689,6 @@
           "/"
         ],
         "target": "/bjsk/keti/:id"
-      },
-      {
-        "title": "基金项目管理平台",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/indexAction!to_index.action",
-          "/"
-        ],
-        "target": "/ankang/keti/:id"
       }
     ]
   },
@@ -49931,6 +49922,19 @@
           "/:id"
         ],
         "target": "/sotwe/user/:id"
+      }
+    ]
+  },
+  "ankang.gov.cn": {
+    "_name": "ankang",
+    "www": [
+      {
+        "title": "安康市政府",
+        "docs": "https://docs.rsshub.app/routes/government",
+        "source": [
+          "/Node-:nodeId.html"
+        ],
+        "target": "/ankang/gov/:nodeId"
       }
     ]
   },
