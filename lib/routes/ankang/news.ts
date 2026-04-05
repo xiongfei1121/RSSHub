@@ -1,6 +1,7 @@
+import { load } from 'cheerio';
+
 import { Route } from '@/types';
 import got from '@/utils/got';
-import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
@@ -39,7 +40,7 @@ export const route: Route = {
             .map((item) => {
                 const $item = $(item);
                 const a = $item.find('a');
-                
+
                 let link = a.attr('href') || '';
                 // 处理相对链接
                 if (link && !link.startsWith('http')) {
@@ -49,7 +50,7 @@ export const route: Route = {
                 return {
                     title: a.attr('title') || a.text().trim(),
                     link,
-                    pubDate: parseDate($item.find('span').text()), 
+                    pubDate: parseDate($item.find('span').text()),
                 };
             })
             .filter((item) => item.link && item.title); // 过滤无效项
@@ -60,13 +61,10 @@ export const route: Route = {
                     try {
                         const detailResponse = await got(item.link);
                         const content = load(detailResponse.data);
-                        
+
                         // 匹配正文内容，尝试多种可能的选择器
-                        const description = content('#zoom').html() || 
-                                          content('.view').html() || 
-                                          content('.article-content').html() ||
-                                          content('.TRS_Editor').html();
-                        
+                        const description = content('#zoom').html() || content('.view').html() || content('.article-content').html() || content('.TRS_Editor').html();
+
                         item.description = description || '正文提取失败，请点击标题查看原文';
                         return item;
                     } catch (e) {
