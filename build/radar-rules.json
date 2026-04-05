@@ -5327,29 +5327,6 @@
       }
     ]
   },
-  "bjsk.org.cn": {
-    "_name": "安康市人民政府网",
-    "keti": [
-      {
-        "title": "基金项目管理平台",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/indexAction!to_index.action",
-          "/"
-        ],
-        "target": "/ankang/keti/:id"
-      },
-      {
-        "title": "基金项目管理平台",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/indexAction!to_index.action",
-          "/"
-        ],
-        "target": "/bjsk/keti/:id"
-      }
-    ]
-  },
   "annualreviews.org": {
     "_name": "Annual Reviews",
     ".": [
@@ -7698,6 +7675,20 @@
           "/"
         ],
         "target": "/bjp/apod"
+      }
+    ]
+  },
+  "bjsk.org.cn": {
+    "_name": "北京社科网",
+    "keti": [
+      {
+        "title": "基金项目管理平台",
+        "docs": "https://docs.rsshub.app/routes/government",
+        "source": [
+          "/indexAction!to_index.action",
+          "/"
+        ],
+        "target": "/bjsk/keti/:id"
       }
     ]
   },
